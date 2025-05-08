@@ -1,0 +1,5 @@
+CREATE DATABASE  contact_form;
+
+use contact_form;
+
+CREATE TABLE contacts(id INT PRIMARY KEY AUTO_INCREMENT, names VARCHAR(250) NOT NULL, email VARCHAR(200), phone VARCHAR(30) NOT NULL, image LONGTEXT);

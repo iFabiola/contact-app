@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+
+    <title>Contact App</title>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+    <div class="w-full h-screen flex justify-center items-center p-4">
+
+        <section class="w-full max-w-5xl flex flex-col md:flex-row gap-6">
+            <main id="contacts" class="bg-white w-full md:w-2/3 rounded-xl shadow-lg overflow-hidden">
+                <header class="bg-blue-500 p-6 text-white">
+                    <h2 class="text-2xl font-bold mb-4">Contacts</h2>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-grow">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <input type="search" placeholder="Search contacts..." class="w-full pl-10 pr-4 py-2 rounded-lg bg-white/20 backdrop-blur-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50">
+                        </div>
+                        <button class="bg-white text-blue-700 px-4 py-2 rounded-lg font-medium flex items-center justify-center hover:bg-blue-50 transition-colors shadow-sm" onclick="openModel()">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add Contact
+                        </button>
+                    </div>
+                </header>
+
+                <div id="allContacts" class="divide-y divide-gray-100 overflow-y-auto max-h-[calc(100vh-220px)]"></div>
+            </main>
+
+            <aside class="w-full md:w-1/3 bg-white rounded-xl shadow-lg overflow-hidden">
+                <header class="bg-blue-500 p-6 text-white">
+                    <h2 class="text-xl font-bold text-center">Edit Contact</h2>
+                </header>
+                
+                <div class="p-6">
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="relative group mb-2">
+                            <img id="updateImage" class="w-24 h-24 rounded-full object-cover border-4 border-indigo-100 bg-gray-200" src="/api/placeholder/200/200" onclick="selectImage(this)"/>
+                            <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onclick="selectImage(document.getElementById('updateProfileImage'))">
+                                <i class="fas fa-camera text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500">Click to change photo</p>
+                    </div>
+
+                    <form class="space-y-4">
+                        <div class="space-y-4">
+                            <div class="relative">
+                                <i class="fas fa-user absolute left-3 top-3 text-gray-400"></i>
+                                <input type="text" class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all" id="updateUserNames" placeholder="Full name">
+                            </div>
+                            
+                            <div class="relative">
+                                <i class="fas fa-envelope absolute left-3 top-3 text-gray-400"></i>
+                                <input type="email" class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all" id="updateUserEmail" placeholder="Email address">
+                            </div>
+                            
+                            <div class="relative">
+                                <i class="fas fa-phone absolute left-3 top-3 text-gray-400"></i>
+                                <input type="tel" class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all" id="updateUserPhone" placeholder="Phone number">
+                            </div>
+                        </div>
+
+                        <button type="button" class="w-full bg-blue-500 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center" onclick="updateUser()">
+                            <i class="fas fa-save mr-2"></i>
+                            Update Contact
+                        </button>
+                    </form>
+                </div>
+            </aside>
+        </section>
+
+        <section class="hidden fixed inset-0 modal z-50 bg-black/70 backdrop-blur-sm flex justify-center items-center p-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-fadeIn">
+                <header class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white">
+                    <h2 class="text-xl font-bold text-center">Add New Contact</h2>
+                </header>
+                
+                <div class="p-6">
+                    <div class="flex flex-col items-center mb-6">
+                        <div class="relative group mb-2">
+                            <img id="profileImage" class="w-24 h-24 rounded-full object-cover border-4 border-blue-100 bg-gray-200" src="/api/placeholder/200/200" onclick="selectImage(this)"/>
+                            <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onclick="selectImage(document.getElementById('profileImage'))">
+                                <i class="fas fa-camera text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500">Click to upload photo</p>
+                        <input type="file" style="display: none;" id="chooseFile" accept="image/*">
+                    </div>
+
+                    <form class="space-y-4">
+                        <div class="space-y-4">
+                            <div class="relative">
+                                <i class="fas fa-user absolute left-3 top-3 text-gray-400"></i>
+                                <input type="text" class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" id="userNames" placeholder="Full name" required>
+                            </div>
+                            
+                            <div class="relative">
+                                <i class="fas fa-envelope absolute left-3 top-3 text-gray-400"></i>
+                                <input type="email" class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" id="userEmail" placeholder="Email address">
+                            </div>
+                            
+                            <div class="relative">
+                                <i class="fas fa-phone absolute left-3 top-3 text-gray-400"></i>
+                                <input type="tel" class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" id="userPhone" placeholder="Phone number" required>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="button" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 rounded-lg transition-colors" onclick="closeModel()">Cancel</button>
+                            <button type="button" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors" onclick="submitData()">Save Contact</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let imageBlob;
+        let id = (e) => document.getElementById(e);
+        function openModel() {
+            const modal = document.querySelector(".modal");
+            modal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeModel() {
+            const modal = document.querySelector(".modal");
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+
+        function selectImage(ev) {
+            let chooseFile = document.getElementById("chooseFile");
+            chooseFile.click();
+            
+            chooseFile.onchange = async function(event) {
+                let image = event.target.files[0];
+                if (!image) return;
+                
+                let file = new FileReader();
+                file.onload = function(ev) {
+                    imageBlob = ev.target.result;
+                    document.getElementById("profileImage").src = imageBlob;
+                    document.getElementById("updateImage").src = imageBlob;
+                }
+                file.readAsDataURL(image);
+            }
+        }
+
+        function fetchContacts() {
+            let contacts = document.getElementById("allContacts");
+            contacts.innerHTML = '';
+            
+   
+            fetch("/fetch-contacts").then(response => response.json()).then(data => {
+                    data.forEach(contact => {
+                        const figure = `
+                        <div onclick="updateArea(this)" class="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <img class="w-16 h-16 rounded-full object-cover bg-gray-200" src="${contact.image}" alt="${contact.names}">
+                                    <div>
+                                        <h3 _id="${contact.id}" class="actualNames text-lg font-medium text-gray-900">${contact.names}</h3>
+                                        <p class="actualPhone text-gray-600"><i class="fas fa-phone text-gray-400 mr-2"></i>${contact.phone}</p>
+                                        <p class="actualEmail text-gray-600"><i class="fas fa-envelope text-gray-400 mr-2"></i>${contact.email}</p>
+                                    </div>
+                                </div>
+                                <button onclick="event.stopPropagation(); deleteContact('${contact.phone}')" class="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>`;
+                        contacts.innerHTML += figure;
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    contacts.innerHTML = '<div class="p-8 text-center text-gray-500">Failed to load contacts</div>';
+                });
+            
+        }
+
+        fetchContacts();
+
+        function submitData() {
+            let id = (e) => document.getElementById(e);
+
+            let userNames = id("userNames");
+            let userEmail = id("userEmail");
+            let userPhone = id("userPhone");
+
+            if (!userNames.value || !userPhone.value) {
+                alert("Please fill in required fields");
+                return;
+            }
+
+            let payload = {
+                names: userNames.value,
+                email: userEmail.value,
+                phone: userPhone.value,
+                image: imageBlob
+            }
+
+        
+            const saveButton = document.querySelector(".modal button:last-child");
+            const originalText = saveButton.innerHTML;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+            saveButton.disabled = true;
+
+        
+            fetch(`/register-endpoint`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }).then(response => response.json())
+              .then(data => {
+                  console.log(data);
+                  fetchContacts();
+              }).catch(err => {
+                  console.error(err);
+                  alert("Failed to save contact");
+              }).finally(() => {
+                  saveButton.innerHTML = originalText;
+                  saveButton.disabled = false;
+                  closeModel();
+              });
+            
+        }
+
+        function deleteContact(phone) {
+            if (!confirm("Are you sure you want to delete this contact?")) {
+                return;
+            }
+
+
+            fetch(`/contact/${phone}`, {
+                method: "DELETE"
+            }).then(response => response.json())
+              .then(result => {
+                  console.log(result);
+                  fetchContacts();
+              }).catch(err => {
+                  console.error(err);
+                  alert("Failed to delete contact");
+              });
+            
+        }
+
+        let updateId = null;
+        function updateArea(element) {
+            let id = (e) => document.getElementById(e);
+
+            let updateUserNames = id("updateUserNames");
+            let updateUserEmail = id("updateUserEmail");
+            let updatePhone = id("updateUserPhone");
+            let updateImage =id("updateImage");
+
+            let actualEmail = element.querySelector(".actualEmail");
+            let actualNames = element.querySelector(".actualNames");
+            let actualPhone = element.querySelector(".actualPhone");
+            let actualImage = element.querySelector("img").src;
+            let userId=element.querySelector("h3").getAttribute("_id");
+           updateId = userId;
+
+            updateUserEmail.value = actualEmail.textContent; 
+            updatePhone.value = actualPhone.textContent;
+            updateUserNames.value = actualNames.textContent;
+            updateImage.src = actualImage;
+        }
+
+        function updateUser() {
+            let updateUserNames = document.getElementById("updateUserNames");
+            let updateUserEmail = document.getElementById("updateUserEmail");
+            let updateUserPhone = document.getElementById("updateUserPhone");
+            let updateImage = id("updateImage");
+
+
+            if (!updateUserNames.value || !updateUserPhone.value) {
+                alert("Please fill in required fields");
+                return;
+            }
+
+      
+            const updateButton = document.querySelector("aside button");
+            const originalText = updateButton.innerHTML;
+            updateButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
+            updateButton.disabled = true;
+
+            
+            let payload = {
+                id:updateId,
+                names: updateUserNames.value,
+                email: updateUserEmail.value,
+                phone: updateUserPhone.value,
+                image: updateImage.src
+            };
+
+            fetch(`/update-contact`, {
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }).then(response => response.json())
+              .then(data => {
+                  console.log(data);
+                  fetchContacts();
+              }).catch(err => {
+                  console.error(err);
+                  alert("Failed to update contact");
+              }).finally(() => {
+                  updateButton.innerHTML = originalText;
+                  updateButton.disabled = false;
+                  updateId = null;
+              });
+        
+        }
+    </script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(10px); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        .animate-fadeOut {
+            animation: fadeOut 0.3s ease-out forwards;
+            
+                }
+    </style>
+</body>
+</html>
